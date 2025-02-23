@@ -11,6 +11,11 @@ ax_reg: db 'AX = 0000$'
 bx_reg: db 'BX = 0000$'
 cx_reg: db 'CX = 0000$'
 dx_reg: db 'DX = 0000$'
+di_reg: db 'DI = 0000$'
+cs_reg: db 'CS = 0000$'
+ip_reg: db 'IP = 0000$'
+si_reg: db 'SI = 0000$'
+
 
 RegToStr proc
 	
@@ -41,10 +46,12 @@ RegToStr proc
 	mov ah, 00101110b
 	loooper:
 		lodsb
-		stosw
 		cmp al, '$'
-		jne loooper
+		je loooper_end
+		stosw
+		jmp loooper
 
+	loooper_end:
 	pop dx cx bx ax
 	ret
 	endp
@@ -57,10 +64,11 @@ RegToStr proc
 
 DrawRect proc
 	
-	push cx				;Pushing ColorStyle to stack
+	push cx				; Pushing ColorStyle to stack
 
 	xor ax, ax		 	;Cleaning register
 	mov di, 17 * 80 * 2 + 64	;Start video memory bias
+
 
 
 	xor cx, cx			;Cleaning registers	
@@ -68,6 +76,7 @@ DrawRect proc
 
 
 	pop ax
+	;mov ah, 00001100b		;Color of Rectangle (can be modified)
 	sub dh, 1		 
 	sub dl, 1		
 	mov ch, 1		
@@ -84,7 +93,7 @@ DrawRect proc
 	rect_cycle:				;|
 						;|
 		cmp dh, ch			;|
-		je end_rect_cycle		;|				
+		je end_rect_cycle		;|		
 
 		push di				;|
 		push cx				;|
@@ -100,7 +109,7 @@ DrawRect proc
 
 	end_rect_cycle:	
 
-						;Drawing the last line
+					;Drawing the last line
 	push di
 	;add si, 3				;|
 
@@ -170,6 +179,14 @@ Main proc
 ;----------------------------
 ;	Resident Part
 ;----------------------------
+
+clear_screen:
+	mov dh, 5d
+	mov dl, 30d
+	xor cx, cx
+	call DrawRect
+	jmp show_end
+
 Rez proc
 	push ax bx es
 	mov ax, 0b800h
@@ -190,7 +207,7 @@ Rez proc
 	xor dx, dx
  
 	mov dh, 5d
-	mov dl, 15d
+	mov dl, 30d
 	mov cx, 0abcdh
 	
 	push cs
@@ -206,6 +223,16 @@ Rez proc
 	mov bx, 2 * 80 * 18 + 68
 	lea di, [ax_reg+reg_len]
 	call RegToStr
+
+	push bx
+	add bx, 2 * 15
+	lea di, [di_reg+reg_len]
+	push ax
+	mov ax, di
+	call RegToStr
+	pop ax
+	pop bx
+
 	add bx, 2 * 80
 
 	lea di, [bx_reg + reg_len]
@@ -214,6 +241,16 @@ Rez proc
 	call RegToStr
 	pop ax
 
+	push bx
+	add bx, 2 * 15
+	lea di, [si_reg+reg_len]
+	push ax
+	push si
+	pop ax
+	call RegToStr
+	pop ax
+	pop bx
+
 	add bx, 2 * 80
 	lea di, [cx_reg+reg_len]	
 	push ax
@@ -221,10 +258,29 @@ Rez proc
 	call RegToStr
 	pop ax
 
+	push bx
+	add bx, 15 * 2
+	lea di, [cs_reg+reg_len]
+	push ax
+	push cs
+	pop ax
+	call RegToStr
+	pop ax
+	pop bx
+
 	add bx, 2 * 80
 	lea di, [dx_reg + reg_len]
 	push ax
 	mov ax, dx
+	call RegToStr
+	pop ax
+
+	
+	add bx, 15 * 2
+	lea di, [ip_reg + reg_len]
+	push ax
+	get_ip:
+	lea ax, [get_ip]
 	call RegToStr
 	pop ax
 
@@ -242,14 +298,6 @@ Rez proc
 	
 	iret
 	endp
-
-clear_screen:
-	mov dh, 5d
-	mov dl, 15d
-	mov cx, 0000h
-	call DrawRect
-	jmp show_end
-
 
 db 0eah
 oldbias dw 0h
