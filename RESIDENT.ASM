@@ -57,34 +57,17 @@ RegToStr proc
 
 DrawRect proc
 	
-	push cx				; Pushing ColorStyle to stack
+	push cx				;Pushing ColorStyle to stack
 
 	xor ax, ax		 	;Cleaning register
-	mov di, 17 * 80 * 2 + 64	 	;Start video memory bias
+	mov di, 17 * 80 * 2 + 64	;Start video memory bias
 
-		
-	;mov al, dl		
-	;mov ch, 80		
-	;sub ch, al			;Moving di to the horizontal	
-	;mov al, ch			;center of the screen
-	;xor ah, ah		
-	;add di, ax		
-
-
-	;mov cl, 2		
-	;mov al, dl	
-	;div cl				;Strange code here :)
-	;cmp ah, 0			;Adding or not adding 1 to di on order
-	;je go_rect			;to prevent wrong [chr-attr] bytes location
-	;add di, 1		
-	;go_rect:		
 
 	xor cx, cx			;Cleaning registers	
 	xor ax, ax		
 
 
 	pop ax
-	;mov ah, 00001100b		;Color of Rectangle (can be modified)
 	sub dh, 1		 
 	sub dl, 1		
 	mov ch, 1		
@@ -101,7 +84,7 @@ DrawRect proc
 	rect_cycle:				;|
 						;|
 		cmp dh, ch			;|
-		je end_rect_cycle		;|				;|
+		je end_rect_cycle		;|				
 
 		push di				;|
 		push cx				;|
@@ -117,7 +100,7 @@ DrawRect proc
 
 	end_rect_cycle:	
 
-					;Drawing the last line
+						;Drawing the last line
 	push di
 	;add si, 3				;|
 
