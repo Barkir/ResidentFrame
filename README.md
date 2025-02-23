@@ -7,10 +7,12 @@
 
   
 
-https://github.com/user-attachments/assets/4e211d74-0cd5-4873-8785-69ce5ed1b69f
+
+https://github.com/user-attachments/assets/3e51d273-440b-4e51-b157-509cb4212bf7
 
 ## Results
 - [x] Helpful frame which shows registers values while running Volkov Commander
+- [x] Shows AX, BX, CX, DX, SI, DI, CS, IP registers 
 
 
 This task is to understand how to work with interruptions and simulate parallel processing.
